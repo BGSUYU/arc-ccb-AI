@@ -3,8 +3,21 @@ import puppeteer from 'puppeteer'
 // 爬取的URL:https://m.prts.wiki/w/%E5%B9%B2%E5%91%98%E4%B8%80%E8%A7%88
 const url = 'https://m.prts.wiki/w/%E5%B9%B2%E5%91%98%E4%B8%80%E8%A7%88'
 
+interface AllItems {
+  name: string[];
+  SubProfession: string[];
+  Power: string[];
+  BirthPlace: string[];
+  Race: string[];
+  Sex: string[];
+  Position: string[];
+  Obtain: string[];
+  Tag: string[];
+  Feature: string[];
+}
+
 //分析Html页面信息（puppeteer可以有axios以及cheerio的作用 主要用于抓取动态如：Vue和React的页面）
-export async function fetchPage(): Promise<void> {
+export async function fetchPage(): Promise<AllItems> { // 使用Promise封装函数 返回AllItems类型的数据（如果不进行Promise类型的指定，则语言会自己进行决定）
     const Itemsname: string[] = [];//用于拼接姓名的所有数据
     const ItemsSubProfession: string[] = [];//用于拼接干员的子职业
     const ItemsPower: string[] = [];//用于拼接干员的势力
@@ -30,7 +43,7 @@ export async function fetchPage(): Promise<void> {
     
     let pageIndex = 1; //抓取页数索引
 
-    puppeteer.launch()
+    return await puppeteer.launch() //启动浏览器 注意return await的使用 return await可以将Promise对象的结果直接返回 下列return AllItems 如果不在此使用则无法返回因为只是触发函数
     .then(async browser => {
 
     const page = await browser.newPage();
@@ -88,6 +101,7 @@ export async function fetchPage(): Promise<void> {
         }
 
         //<div data-v-81ebf6dc="" class="name"><div data-v-81ebf6dc=""><a data-v-81ebf6dc="" href="https://prts.wiki/w/安德切尔"><div data-v-81ebf6dc="">安德切尔</div></a><div data-v-81ebf6dc="">Adnachiel</div><div data-v-81ebf6dc="">アドナキエル</div><div data-v-81ebf6dc="">PA44</div></div></div><div data-v-81ebf6dc="" class="camp"><div data-v-81ebf6dc=""><div data-v-81ebf6dc="">速射手</div><div data-v-81ebf6dc="">罗德岛-行动预备组A4</div><div data-v-81ebf6dc="">拉特兰</div><div data-v-81ebf6dc="">萨科塔</div></div></div><div data-v-81ebf6dc="" class="data"><div data-v-81ebf6dc="" class="hp">1080</div><div data-v-81ebf6dc="" class="atk">365</div><div data-v-81ebf6dc="" class="def">134</div><div data-v-81ebf6dc="" class="res">0</div></div><div data-v-81ebf6dc="" class="property"><div data-v-81ebf6dc="" class="re_deploy">70s</div><div data-v-81ebf6dc="" class="cost">11</div><div data-v-81ebf6dc="" class="block">1</div><div data-v-81ebf6dc="" class="interval">1.0s</div></div><div data-v-81ebf6dc="" class="obtain"><div data-v-81ebf6dc="">公开招募</div><div data-v-81ebf6dc="">主线剧情</div></div><div data-v-81ebf6dc="" class="tag"><div data-v-81ebf6dc="" class="sex">男</div><div data-v-81ebf6dc="" class="position">远程位</div><div data-v-81ebf6dc="">输出</div></div><div data-v-81ebf6dc="" class="feature"><div data-v-81ebf6dc=""><div data-v-2d7b39ca="">优先攻击空中单位</div></div></div></div>'
+        
         await nextPageDiv.click(),
         // 触发点击
 
@@ -100,7 +114,7 @@ export async function fetchPage(): Promise<void> {
         
       }
         await browser.close();
-        console.log(allItems);//测试总体数据是否正确
+        // console.log(allItems);//测试总体数据是否正确
         return allItems;
     }
   )    
@@ -108,3 +122,4 @@ export async function fetchPage(): Promise<void> {
 
 // fetchPage() //函数测试
 // const data = await fetchPage() //获取data的方式
+// console.log(data); //输出数据
