@@ -3,3 +3,4 @@ build/
 
 Front/public/favicon.ico
 Front/README.md
+.env

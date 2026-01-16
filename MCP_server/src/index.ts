@@ -34,13 +34,13 @@ app.post('/mcp', async (req, res) => {
           server.close();
         });//监听请求关闭事件（HTTP连接关闭）
 
-        console.log('Received MCP request:', res);
+        console.log('Received MCP request:', req.body);
 
         // initialized  客户端告诉服务器希望请求初始化连接
         // tools/list  客户端请求工具列表
         // notifications/initialized 客户端告诉服务器初始化完成能够继续进行通信
 
-        await handleAgentMessageTool(server, req.body);//注册处理干员信息的工具函数
+        await handleAgentMessageTool(server);//注册处理干员信息的工具函数
         await server.connect(transport);
         await transport.handleRequest(req, res, req.body);
 

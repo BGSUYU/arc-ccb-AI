@@ -1,12 +1,15 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {fetchPage} from './PRTS_crawler.js';
-// import { z } from "zod";
+import { z } from "zod";
 
-export async function handleAgentMessageTool(server:McpServer,state:string) {
+export async function handleAgentMessageTool(server:McpServer) {
     server.tool(
         "getAgentMessage",
         "获取某个干员信息",
-        async (state) => {
+        {
+            state: z.string().describe("干员的姓名"),
+        },
+        async ({state}) => {
             const data = await fromatAgentMessage();
             if(!data || data.length === 0) {
                 return {
@@ -19,7 +22,7 @@ export async function handleAgentMessageTool(server:McpServer,state:string) {
                 }
             }
 
-            const AgentMessage = `以下是干员信息:\n\n${data.join('\n\n')}，根据提供的姓名${state}，告诉除干员姓名外的某一个信息（如子职业或者性别，但只返回一个）`;
+            const AgentMessage = `以下是干员信息:\n\n${data}，根据提供的姓名${state}，随机告诉除干员姓名外的某一个信息（如子职业或者性别，但只返回一个）`;
             return{
                 content:[
                     {
@@ -37,6 +40,19 @@ async function fromatAgentMessage(){
     const data = await fetchPage();
     const props:string[] = [];
 
+    interface Props {
+        name: string[];
+        SubProfession: string[];
+        Power: string[];
+        BirthPlace: string[];
+        Race: string[];
+        Sex: string[];
+        Position: string[];
+        Obtain: string[];
+        Tag: string[];
+        Feature: string[];
+    }
+
     for(let i = 0; i < data.name.length; i++) {
         props.push([
             `干员姓名: ${data.name[i] || 'Unknown'}`,
@@ -49,11 +65,11 @@ async function fromatAgentMessage(){
             `获取方式: ${data.Obtain[i] || 'Unknown'}`,
             `标签: ${data.Tag[i] || 'Unknown'}`,
             `特性: ${data.Feature[i] || 'Unknown'}`,
-            '---'
+            '----------------------------'
         ]
         .join('\n'));
     }
-    console.log(props);
+    // console.log(props);
     return props;
 }//数据格式换函数
 
