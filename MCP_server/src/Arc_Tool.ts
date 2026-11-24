@@ -2,15 +2,27 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {fetchPage} from './PRTS_crawler.js';
 import { z } from "zod";
 
-export async function handleAgentMessageTool(server:McpServer) {
-    server.tool(
-        "getAgentMessage",
-        "获取某个干员信息",
+/**
+ * 注册「获取干员信息」这个工具。
+ *
+ * registerTool(name, config, cb) 三个参数分别是：
+ *   1. 工具名，LLM 发起调用时用它来指认是哪个工具
+ *   2. 工具配置：description（给模型看的说明）+ inputSchema（入参的 zod 形状）
+ *   3. 执行回调：只有客户端真正发起 tools/call 时才会被调用
+ *
+ * 注意：第 3 个参数不是「注册时就执行」，而是「等 LLM 传来参数后再执行」。
+ */
+export async function registerArcTool(server:McpServer) {
+    server.registerTool(
+        'getArcAgentMessage',
         {
-            state: z.string().describe("干员的姓名"),
+            description: '通过名字获取干员的信息，如银灰、塔露拉',
+            inputSchema: {
+                name: z.string().describe('干员名称，如银灰、塔露拉'),
+            },
         },
-        async ({state}) => {
-            const data = await fromatAgentMessage();
+        async ({name}) => {
+            const data = await formatAgentMessage();
             if(!data || data.length === 0) {
                 return {
                     content:[
@@ -22,7 +34,7 @@ export async function handleAgentMessageTool(server:McpServer) {
                 }
             }
 
-            const AgentMessage = `以下是干员信息:\n\n${data}，根据提供的姓名${state}，随机告诉除干员姓名外的某一个信息（如子职业或者性别，但只返回一个）`;
+            const AgentMessage = `以下是干员信息:\n\n${data}，根据提供的姓名${name}，随机告诉除干员姓名外的某一个信息（如子职业或者性别，但只返回一个）`;
             return{
                 content:[
                     {
@@ -33,25 +45,12 @@ export async function handleAgentMessageTool(server:McpServer) {
             }
         }
     )
-}//注册获取干员信息的工具
+}
 
-async function fromatAgentMessage(){
+async function formatAgentMessage(){
     // 这里可以根据需要对数据进行格式化
     const data = await fetchPage();
     const props:string[] = [];
-
-    interface Props {
-        name: string[];
-        SubProfession: string[];
-        Power: string[];
-        BirthPlace: string[];
-        Race: string[];
-        Sex: string[];
-        Position: string[];
-        Obtain: string[];
-        Tag: string[];
-        Feature: string[];
-    }
 
     for(let i = 0; i < data.name.length; i++) {
         props.push([
@@ -73,5 +72,5 @@ async function fromatAgentMessage(){
     return props;
 }//数据格式换函数
 
-// fromatAgentMessage();
-// handleAgentMessageTool();
+// formatAgentMessage();
+// registerArcTool();

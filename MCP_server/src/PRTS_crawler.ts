@@ -95,7 +95,7 @@ export async function fetchPage(): Promise<AllItems> { // 使用Promise封装函
           ItemsRace.push(camp[i*4+3]);//获取种族
         }//此循环用于拼接camp信息
 
-        const nextPageDiv = await page.$(`.paginations-container .checkbox-container:nth-child(${pageIndex + 1})`) //设置需要点击的元素
+        const nextPageDiv = await page.$(`.paginations-container > .checkbox-container > .checkbox-container:nth-child(${pageIndex + 1})`) //设置需要点击的元素
         if (!nextPageDiv) {
         break;
         }

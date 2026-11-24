@@ -2,7 +2,7 @@ import express from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import cors from 'cors';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import {handleAgentMessageTool} from './Agent_Message_Tool.js'; //引入处理干员信息的工具函数
+import {registerArcTool} from './Arc_Tool.js'; //引入干员信息工具的注册方法
 
 const app = express();//创建Express应用实例
 
@@ -17,12 +17,7 @@ app.post('/mcp', async (req, res) => {
         const server = new McpServer({
             name:'ark-mcp-server',
             version:'1.0.0',
-        },{
-            capabilities: {
-                tools:{},
-                resources:{},
-            }
-        })//创建MCP服务器实例
+        })//创建MCP服务器实例（不声明 capabilities：SDK 在注册工具时会自动声明 tools 能力）
 
         const transport :StreamableHTTPServerTransport = new StreamableHTTPServerTransport({
             sessionIdGenerator:undefined,
@@ -40,7 +35,7 @@ app.post('/mcp', async (req, res) => {
         // tools/list  客户端请求工具列表
         // notifications/initialized 客户端告诉服务器初始化完成能够继续进行通信
 
-        await handleAgentMessageTool(server);//注册处理干员信息的工具函数
+        await registerArcTool(server);//注册获取干员信息的工具
         await server.connect(transport);
         await transport.handleRequest(req, res, req.body);
 
